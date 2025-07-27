@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VTubeX</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #00ff99;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0;
+      padding: 40px 20px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo h1 {
+      color: #00ff99;
+      font-size: 3rem;
+      margin: 0;
+    }
+
+    .logo p {
+      color: #ccc;
+      margin: 4px 0 0;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      width: 100%;
+      max-width: 500px;
+    }
+
+    input, select, button {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    input, select {
+      background: #1a1a1a;
+      color: #00ff99;
+    }
+
+    button {
+      background-color: #00ff99;
+      color: #000;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #00cc77;
+    }
+
+    .preview {
+      margin-top: 30px;
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .preview img {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .preview h2 {
+      margin: 10px 0;
+    }
+
+    .preview .duration {
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+  </style>
+</head>
+<body>
+  <a href="/">
+    <div class="logo">
+      <h1>VTubeX</h1>
+      <p>The Ultimate YouTube Downloader</p>
+    </div>
+  </a>
+
+  <form method="POST" action="/">
+    <input type="text" name="url" placeholder="Paste YouTube URL" required />
+    <select name="quality">
+      <option value="360">🎞 360p</option>
+      <option value="720">🎞 720p</option>
+      <option value="1080">🎞 1080p</option>
+      <option value="audio">🎧 MP3 (Audio Only)</option>
+    </select>
+    <button type="submit">Preview</button>
+  </form>
+
+  {% if video %}
+    <div class="preview">
+      <img src="{{ video.thumbnail }}" alt="Thumbnail">
+      <h2>{{ video.title }}</h2>
+      <div class="duration">⏱ {{ video.duration }}</div>
+      <form action="/download" method="POST">
+        <input type="hidden" name="url" value="{{ video.url }}">
+        <input type="hidden" name="quality" value="{{ video.quality }}">
+        <button type="submit">Download</button>
+      </form>
+    </div>
+  {% endif %}
+</body>
+</html>
