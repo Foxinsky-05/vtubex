@@ -14,14 +14,14 @@ def index():
         url = request.form['url']
         format_id = request.form.get('format')
 
-        # Create a unique filename
-        unique_filename = f"{uuid4()}.%(ext)s"
-        filepath = os.path.join(DOWNLOAD_FOLDER, unique_filename)
+        # Unique file name
+        filename = f"{uuid4()}.%(ext)s"
+        path_template = os.path.join(DOWNLOAD_FOLDER, filename)
 
         ydl_opts = {
-            'outtmpl': filepath,
+            'outtmpl': path_template,
             'quiet': True,
-            'merge_output_format': 'mp4',
+            'merge_output_format': 'mp4'
         }
 
         if format_id:
@@ -30,15 +30,15 @@ def index():
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
-                actual_path = ydl.prepare_filename(info)
+                file_path = ydl.prepare_filename(info)
 
-            print(f"[DEBUG] File downloaded to: {actual_path}")
-            print(f"[DEBUG] File exists? {os.path.exists(actual_path)}")
+            if not os.path.exists(file_path):
+                return "Error: File not found after download."
 
             return send_file(
-                actual_path,
+                file_path,
                 as_attachment=True,
-                download_name=os.path.basename(actual_path),
+                download_name=os.path.basename(file_path),
                 mimetype='application/octet-stream'
             )
 
@@ -48,8 +48,7 @@ def index():
 
     return render_template('index.html')
 
-# ✅ Required for Render deployment
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
