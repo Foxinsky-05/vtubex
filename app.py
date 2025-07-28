@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file, redirect, url_for
+from flask import Flask, render_template, request, send_file
 import os
 import yt_dlp
 from uuid import uuid4
@@ -15,33 +15,40 @@ def index():
         format_id = request.form.get('format')
 
         # Create a unique filename
-        filename = f"{uuid4()}.%(ext)s"
-        filepath = os.path.join(DOWNLOAD_FOLDER, filename)
+        unique_filename = f"{uuid4()}.%(ext)s"
+        filepath = os.path.join(DOWNLOAD_FOLDER, unique_filename)
 
         ydl_opts = {
             'outtmpl': filepath,
             'quiet': True,
+            'merge_output_format': 'mp4',
         }
 
-        # Add format
         if format_id:
             ydl_opts['format'] = format_id
-
-        # Enable merging for video+audio
-        ydl_opts['merge_output_format'] = 'mp4'
 
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
                 actual_path = ydl.prepare_filename(info)
 
-            return send_file(actual_path, as_attachment=True)
+            print(f"[DEBUG] File downloaded to: {actual_path}")
+            print(f"[DEBUG] File exists? {os.path.exists(actual_path)}")
+
+            return send_file(
+                actual_path,
+                as_attachment=True,
+                download_name=os.path.basename(actual_path),
+                mimetype='application/octet-stream'
+            )
+
         except Exception as e:
+            print(f"[ERROR] {e}")
             return f"Error: {str(e)}"
 
     return render_template('index.html')
 
-# ✅ Use dynamic port for Render
+# ✅ Required for Render deployment
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
